@@ -1,8 +1,48 @@
-Write your reflection here.
+This assignment taught me how to scrape websites that were made for people,
+not programs. Each café's website was built differently, so each scraper
+needed a different trick. For Lakeshore Lattes, I used query_selector_all and
+the ~ sibling selector to find the grid of cards after each section heading.
+The cards had extra stuff like NEW! badges and V and GF tags mixed in with the
+prices, so my cleaning functions had to take those out and split lines like
+"S $5.05 · L $6.25" into separate sizes and prices. For Hilltop Grind,
+pd.read_html read every table on the page at once. I used zip to pair each
+table with its h2 heading, and melt to turn the S, M, and L columns into rows.
 
-See reflection.md for what makes a good reflection — be specific, use the
-terminology from this assignment (HTML element, CSS selector, class and id
-selectors, sibling selector, inner_text, attribute, headless browser, waiting for
-JavaScript, crawling, pagination, read_html, melt, fuzzy matching, normalization,
-threshold, human in the loop, merge indicator, gap analysis), and make it
-actionable.
+Canal Street was the hardest because nothing was in the HTML until the page's
+JavaScript loaded it. My scraper had to pick a shop with select_option, click
+Show full menu, wait for the cards, and keep clicking Show more until the
+button went away. I learned that query_selector_all doesn't wait, so if you
+call it too early it just returns an empty list without an error. I also
+learned to save all the links first before visiting them, because leaving the
+page gets rid of the cards you were looping through.
+
+The matching part showed me that fuzzy matching measures spelling, not
+meaning. Matcha Latte scored 87 against Mocha Latte, and the review page even
+picked Mocha Latte for me, but they are totally different drinks. PSL scored
+really low against Pumpkin Spice Latte but is the same drink. That's why the
+code only matches things automatically at 90 or higher and asks a person about
+the rest. This is called keeping a human in the loop. The review page showed
+18 items, but I only had to answer 12, because once I named something like
+Matcha Latte, the other cafés' versions matched it automatically.
+
+I made one mistake during the review. I marked Hilltop's Egg & Cheese
+Breakfast Sandwich as a new item, but it is actually our Breakfast Sandwich
+with a longer name. All the tests still passed, but my Analysis page showed
+26 prices below the market and 9 above instead of 25 and 10. I compared my
+answers to the correct ones with diff, found the wrong line, and fixed it by
+hand in data/item_matches.csv. This showed me that the analysis is only as
+good as the matching, and that passing tests doesn't always mean the results
+are right.
+
+For the analysis, price_table pivots the prices so each café gets its own
+column, compare_prices figures out where our price stands, and gap_analysis
+uses an outer merge with indicator=True to find what only we sell and what
+only the rivals sell.
+
+Ruff found missing newlines at the end of my files again, for the third
+assignment in a row. Next time I will press Enter at the bottom of every file
+before saving, and run ruff check after each part instead of only at the end.
+I will also commit after every step, because I forgot to commit after the
+cleaning functions. And when the review page asks me to match items, I will
+think about whether two items are really the same thing, not just whether
+their names look alike.
